@@ -28,14 +28,22 @@ func (lru *SyncedLRU[K, V]) SetOnEvict(onEvict OnEvictCallback[K, V]) {
 	lru.mu.Unlock()
 }
 
+func (lru *SyncedLRU[K, V]) SetHealthCheck(healthCheck HealthCheckCallback[K, V]) {
+	lru.mu.Lock()
+	lru.lru.SetHealthCheck(healthCheck)
+	lru.mu.Unlock()
+}
+
 // NewSynced creates a new thread-safe LRU hashmap with the given capacity.
 func NewSynced[K comparable, V any](capacity uint32, hash HashKeyCallback[K]) (*SyncedLRU[K, V],
-	error) {
+	error,
+) {
 	return NewSyncedWithSize[K, V](capacity, capacity, hash)
 }
 
 func NewSyncedWithSize[K comparable, V any](capacity, size uint32,
-	hash HashKeyCallback[K]) (*SyncedLRU[K, V], error) {
+	hash HashKeyCallback[K],
+) (*SyncedLRU[K, V], error) {
 	lru, err := NewWithSize[K, V](capacity, size, hash)
 	if err != nil {
 		return nil, err

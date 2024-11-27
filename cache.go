@@ -28,6 +28,8 @@ type Cache[K comparable, V any] interface {
 	// The onEvict function is called for each evicted lru entry.
 	SetOnEvict(onEvict OnEvictCallback[K, V])
 
+	SetHealthCheck(healthCheck HealthCheckCallback[K, V])
+
 	// Len returns the number of elements stored in the cache.
 	Len() int
 
