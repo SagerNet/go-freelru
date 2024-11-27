@@ -254,9 +254,9 @@ func testCacheAddWithRefresh(t *testing.T, cache Cache[uint64, uint64]) {
 	FatalIf(t, !ok, "Failed to get")
 
 	time.Sleep(101 * time.Millisecond)
-	_, ok = cache.GetAndRefresh(1, 0)
+	_, ok = cache.GetAndRefresh(1)
 	FatalIf(t, !ok, "Unexpected expiration")
-	_, ok = cache.GetAndRefresh(2, 0)
+	_, ok = cache.GetAndRefresh(2)
 	FatalIf(t, !ok, "Unexpected expiration")
 }
 

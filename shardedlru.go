@@ -179,12 +179,12 @@ func (lru *ShardedLRU[K, V]) Get(key K) (value V, ok bool) {
 // GetAndRefresh returns the value associated with the key, setting it as the most
 // recently used item.
 // The lifetime of the found cache item is refreshed, even if it was already expired.
-func (lru *ShardedLRU[K, V]) GetAndRefresh(key K, lifetime time.Duration) (value V, ok bool) {
+func (lru *ShardedLRU[K, V]) GetAndRefresh(key K) (value V, ok bool) {
 	hash := lru.hash(key)
 	shard := (hash >> 16) & lru.mask
 
 	lru.mus[shard].Lock()
-	value, ok = lru.lrus[shard].getAndRefresh(hash, key, lifetime)
+	value, ok = lru.lrus[shard].getAndRefresh(hash, key)
 	lru.mus[shard].Unlock()
 
 	return

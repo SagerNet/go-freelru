@@ -50,7 +50,7 @@ type Cache[K comparable, V any] interface {
 	// GetAndRefresh returns the value associated with the key, setting it as the most
 	// recently used item.
 	// The lifetime of the found cache item is refreshed, even if it was already expired.
-	GetAndRefresh(key K, lifetime time.Duration) (V, bool)
+	GetAndRefresh(key K) (V, bool)
 
 	// Peek looks up a key's value from the cache, without changing its recent-ness.
 	// If the found entry is already expired, the evict function is called.

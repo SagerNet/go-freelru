@@ -485,18 +485,18 @@ func (lru *LRU[K, V]) get(hash uint32, key K) (value V, ok bool) {
 // GetAndRefresh returns the value associated with the key, setting it as the most
 // recently used item.
 // The lifetime of the found cache item is refreshed, even if it was already expired.
-func (lru *LRU[K, V]) GetAndRefresh(key K, lifetime time.Duration) (V, bool) {
-	return lru.getAndRefresh(lru.hash(key), key, lifetime)
+func (lru *LRU[K, V]) GetAndRefresh(key K) (V, bool) {
+	return lru.getAndRefresh(lru.hash(key), key)
 }
 
-func (lru *LRU[K, V]) getAndRefresh(hash uint32, key K, lifetime time.Duration) (value V, ok bool) {
+func (lru *LRU[K, V]) getAndRefresh(hash uint32, key K) (value V, ok bool) {
 	if pos, ok := lru.findKeyNoExpire(hash, key); ok {
 		if pos != lru.head {
 			lru.unlinkElement(pos)
 			lru.setHead(pos)
 		}
 		lru.metrics.Hits++
-		lru.elements[pos].expire = expire(lifetime)
+		lru.elements[pos].expire = expire(lru.lifetime)
 		return lru.elements[pos].value, ok
 	}
 
