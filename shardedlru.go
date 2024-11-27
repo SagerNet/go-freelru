@@ -203,6 +203,17 @@ func (lru *ShardedLRU[K, V]) Peek(key K) (value V, ok bool) {
 	return
 }
 
+func (lru *ShardedLRU[K, V]) PeekWithLifetime(key K) (value V, lifetime time.Time, ok bool) {
+	hash := lru.hash(key)
+	shard := (hash >> 16) & lru.mask
+
+	lru.mus[shard].Lock()
+	value, lifetime, ok = lru.lrus[shard].peekWithLifetime(hash, key)
+	lru.mus[shard].Unlock()
+
+	return
+}
+
 // Contains checks for the existence of a key, without changing its recent-ness.
 // If the found entry is already expired, the evict function is called.
 func (lru *ShardedLRU[K, V]) Contains(key K) (ok bool) {

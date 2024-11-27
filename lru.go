@@ -518,6 +518,18 @@ func (lru *LRU[K, V]) peek(hash uint32, key K) (value V, ok bool) {
 	return
 }
 
+func (lru *LRU[K, V]) PeekWithLifetime(key K) (value V, lifetime time.Time, ok bool) {
+	return lru.peekWithLifetime(lru.hash(key), key)
+}
+
+func (lru *LRU[K, V]) peekWithLifetime(hash uint32, key K) (value V, lifetime time.Time, ok bool) {
+	if pos, ok := lru.findKey(hash, key); ok {
+		return lru.elements[pos].value, time.UnixMilli(lru.elements[pos].expire), ok
+	}
+
+	return
+}
+
 // Contains checks for the existence of a key, without changing its recent-ness.
 // If the found entry is already expired, the evict function is called.
 func (lru *LRU[K, V]) Contains(key K) (ok bool) {

@@ -123,6 +123,16 @@ func (lru *SyncedLRU[K, V]) Peek(key K) (value V, ok bool) {
 	return
 }
 
+func (lru *SyncedLRU[K, V]) PeekWithLifetime(key K) (value V, lifetime time.Time, ok bool) {
+	hash := lru.lru.hash(key)
+
+	lru.mu.Lock()
+	value, lifetime, ok = lru.lru.peekWithLifetime(hash, key)
+	lru.mu.Unlock()
+
+	return
+}
+
 // Contains checks for the existence of a key, without changing its recent-ness.
 // If the found entry is already expired, the evict function is called.
 func (lru *SyncedLRU[K, V]) Contains(key K) (ok bool) {

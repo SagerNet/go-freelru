@@ -56,6 +56,8 @@ type Cache[K comparable, V any] interface {
 	// If the found entry is already expired, the evict function is called.
 	Peek(key K) (V, bool)
 
+	PeekWithLifetime(key K) (V, time.Time, bool)
+
 	// Contains checks for the existence of a key, without changing its recent-ness.
 	// If the found entry is already expired, the evict function is called.
 	Contains(key K) bool
