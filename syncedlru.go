@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type SyncedLRU[K comparable, V any] struct {
+type SyncedLRU[K comparable, V comparable] struct {
 	mu  sync.RWMutex
 	lru *LRU[K, V]
 }
@@ -35,13 +35,13 @@ func (lru *SyncedLRU[K, V]) SetHealthCheck(healthCheck HealthCheckCallback[K, V]
 }
 
 // NewSynced creates a new thread-safe LRU hashmap with the given capacity.
-func NewSynced[K comparable, V any](capacity uint32, hash HashKeyCallback[K]) (*SyncedLRU[K, V],
+func NewSynced[K comparable, V comparable](capacity uint32, hash HashKeyCallback[K]) (*SyncedLRU[K, V],
 	error,
 ) {
 	return NewSyncedWithSize[K, V](capacity, capacity, hash)
 }
 
-func NewSyncedWithSize[K comparable, V any](capacity, size uint32,
+func NewSyncedWithSize[K comparable, V comparable](capacity, size uint32,
 	hash HashKeyCallback[K],
 ) (*SyncedLRU[K, V], error) {
 	lru, err := NewWithSize[K, V](capacity, size, hash)
@@ -128,6 +128,16 @@ func (lru *SyncedLRU[K, V]) PeekWithLifetime(key K) (value V, lifetime time.Time
 
 	lru.mu.Lock()
 	value, lifetime, ok = lru.lru.peekWithLifetime(hash, key)
+	lru.mu.Unlock()
+
+	return
+}
+
+func (lru *SyncedLRU[K, V]) UpdateLifetime(key K, value V, lifetime time.Duration) (ok bool) {
+	hash := lru.lru.hash(key)
+
+	lru.mu.Lock()
+	ok = lru.lru.updateLifetime(hash, key, value, lifetime)
 	lru.mu.Unlock()
 
 	return

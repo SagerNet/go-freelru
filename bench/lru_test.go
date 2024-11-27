@@ -34,7 +34,7 @@ import (
 
 const CAP = 8192
 
-func runFreeLRUAddInt[V any](b *testing.B) {
+func runFreeLRUAddInt[V comparable](b *testing.B) {
 	lru, err := freelru.New[int, V](CAP, hashIntAESENC)
 	if err != nil {
 		b.Fatalf("err: %v", err)
@@ -109,7 +109,7 @@ func BenchmarkFreeLRUAdd_int_string(b *testing.B) {
 	}
 }
 
-func runSyncedFreeLRUAddInt[V any](b *testing.B) {
+func runSyncedFreeLRUAddInt[V comparable](b *testing.B) {
 	lru, err := freelru.NewSynced[int, V](CAP, hashIntAESENC)
 	if err != nil {
 		b.Fatalf("err: %v", err)
@@ -184,7 +184,7 @@ func BenchmarkSyncedFreeLRUAdd_int_string(b *testing.B) {
 	}
 }
 
-func runShardedFreeLRUAddInt[V any](b *testing.B) {
+func runShardedFreeLRUAddInt[V comparable](b *testing.B) {
 	lru, err := freelru.NewSharded[int, V](CAP, hashIntAESENC)
 	if err != nil {
 		b.Fatalf("err: %v", err)
@@ -259,7 +259,7 @@ func BenchmarkShardedFreeLRUAdd_int_string(b *testing.B) {
 	}
 }
 
-func runSimpleLRUAddInt[V any](b *testing.B) {
+func runSimpleLRUAddInt[V comparable](b *testing.B) {
 	lru, err := simplelru.NewLRU[int, V](CAP, nil)
 	if err != nil {
 		b.Fatalf("err: %v", err)
@@ -420,7 +420,7 @@ func BenchmarkFreeCacheAdd_int_string(b *testing.B) {
 	}
 }
 
-func runRistrettoLRUAddInt[V any](b *testing.B) {
+func runRistrettoLRUAddInt[V comparable](b *testing.B) {
 	cache, err := ristretto.NewCache(&ristretto.Config[int, V]{
 		NumCounters: CAP * 10, // number of keys to track frequency of.
 		MaxCost:     CAP,      // maximum cost of cache.
@@ -614,7 +614,7 @@ func BenchmarkBigCacheAdd_int_string(b *testing.B) {
 	}
 }
 
-func runMapAddInt[V any](b *testing.B) {
+func runMapAddInt[V comparable](b *testing.B) {
 	cache := make(map[int]V, b.N) // b.N to avoid reallocations
 
 	keys := makeInts(b.N)

@@ -12,7 +12,7 @@ import (
 // ShardedLRU is a thread-safe, sharded, fixed size LRU cache.
 // Sharding is used to reduce lock contention on high concurrency.
 // The downside is that exact LRU behavior is not given (as for the LRU and SynchedLRU types).
-type ShardedLRU[K comparable, V any] struct {
+type ShardedLRU[K comparable, V comparable] struct {
 	lrus   []LRU[K, V]
 	mus    []sync.RWMutex
 	hash   HashKeyCallback[K]
@@ -58,7 +58,7 @@ func nextPowerOfTwo(val uint32) uint32 {
 }
 
 // NewSharded creates a new thread-safe sharded LRU hashmap with the given capacity.
-func NewSharded[K comparable, V any](capacity uint32, hash HashKeyCallback[K]) (*ShardedLRU[K, V],
+func NewSharded[K comparable, V comparable](capacity uint32, hash HashKeyCallback[K]) (*ShardedLRU[K, V],
 	error,
 ) {
 	size := uint32(float64(capacity) * 1.25) // 25% extra space for fewer collisions
@@ -66,7 +66,7 @@ func NewSharded[K comparable, V any](capacity uint32, hash HashKeyCallback[K]) (
 	return NewShardedWithSize[K, V](uint32(runtime.GOMAXPROCS(0)*16), capacity, size, hash)
 }
 
-func NewShardedWithSize[K comparable, V any](shards, capacity, size uint32,
+func NewShardedWithSize[K comparable, V comparable](shards, capacity, size uint32,
 	hash HashKeyCallback[K]) (
 	*ShardedLRU[K, V], error,
 ) {
@@ -209,6 +209,17 @@ func (lru *ShardedLRU[K, V]) PeekWithLifetime(key K) (value V, lifetime time.Tim
 
 	lru.mus[shard].Lock()
 	value, lifetime, ok = lru.lrus[shard].peekWithLifetime(hash, key)
+	lru.mus[shard].Unlock()
+
+	return
+}
+
+func (lru *ShardedLRU[K, V]) UpdateLifetime(key K, value V, lifetime time.Duration) (ok bool) {
+	hash := lru.hash(key)
+	shard := (hash >> 16) & lru.mask
+
+	lru.mus[shard].Lock()
+	ok = lru.lrus[shard].updateLifetime(hash, key, value, lifetime)
 	lru.mus[shard].Unlock()
 
 	return

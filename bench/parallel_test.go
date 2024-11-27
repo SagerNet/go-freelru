@@ -34,7 +34,7 @@ import (
 	freelru "github.com/sagernet/go-freelru"
 )
 
-func runParallelSyncedFreeLRUAdd[K comparable, V any](b *testing.B) {
+func runParallelSyncedFreeLRUAdd[K comparable, V comparable](b *testing.B) {
 	lru, err := freelru.NewSynced[K, V](CAP, getHashAESENC[K]())
 	if err != nil {
 		b.Fatalf("err: %v", err)
@@ -56,7 +56,7 @@ func runParallelSyncedFreeLRUAdd[K comparable, V any](b *testing.B) {
 	})
 }
 
-func runParallelShardedFreeLRUAdd[K comparable, V any](b *testing.B) {
+func runParallelShardedFreeLRUAdd[K comparable, V comparable](b *testing.B) {
 	lru, err := freelru.NewSharded[K, V](CAP, getHashAESENC[K]())
 	if err != nil {
 		b.Fatalf("err: %v", err)
@@ -141,7 +141,7 @@ func BenchmarkParallelFreeCacheAdd_int_int128(b *testing.B) {
 	})
 }
 
-func runParallelRistrettoLRUAddInt[K int, V any](b *testing.B) {
+func runParallelRistrettoLRUAddInt[K int, V comparable](b *testing.B) {
 	cache, err := ristretto.NewCache(&ristretto.Config[K, V]{
 		NumCounters: CAP * 10, // number of keys to track frequency of.
 		MaxCost:     CAP * 16, // maximum cost of cache.
@@ -175,7 +175,7 @@ func BenchmarkParallelRistrettoAdd_int_int128(b *testing.B) {
 	runParallelRistrettoLRUAddInt[int, int128](b)
 }
 
-func runParallelOracamanMapAddInt[K comparable, V any](b *testing.B) {
+func runParallelOracamanMapAddInt[K comparable, V comparable](b *testing.B) {
 	m := oracaman.NewWithCustomShardingFunction[K, V](getHashAESENC[K]())
 
 	var val V
@@ -202,7 +202,7 @@ func BenchmarkParallelOracamanMapAdd_int_int128(b *testing.B) {
 	runParallelOracamanMapAddInt[int, int128](b)
 }
 
-func runParallelPhusluAddInt[K comparable, V any](b *testing.B) {
+func runParallelPhusluAddInt[K comparable, V comparable](b *testing.B) {
 	cache := phuslu.NewLRUCache[K, V](CAP)
 
 	var val V
@@ -229,7 +229,7 @@ func BenchmarkParallelPhusluAdd_int_int128(b *testing.B) {
 	runParallelPhusluAddInt[int, int128](b)
 }
 
-func runParallelCloudflareAddInt[V any](b *testing.B) {
+func runParallelCloudflareAddInt[V comparable](b *testing.B) {
 	// Only works with string as key.
 	cache := cloudflare.NewMultiLRUCache(256, CAP/256)
 
@@ -258,7 +258,7 @@ func BenchmarkParallelCloudflareAdd_int_int128(b *testing.B) {
 	runParallelCloudflareAddInt[int128](b)
 }
 
-func runParallelHashicorpAdd[K comparable, V any](b *testing.B) {
+func runParallelHashicorpAdd[K comparable, V comparable](b *testing.B) {
 	lru, err := hashicorp.New[K, V](CAP)
 	if err != nil {
 		b.Fatalf("err: %v", err)

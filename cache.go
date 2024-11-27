@@ -19,7 +19,7 @@ package freelru
 
 import "time"
 
-type Cache[K comparable, V any] interface {
+type Cache[K comparable, V comparable] interface {
 	// SetLifetime sets the default lifetime of LRU elements.
 	// Lifetime 0 means "forever".
 	SetLifetime(lifetime time.Duration)
@@ -57,6 +57,8 @@ type Cache[K comparable, V any] interface {
 	Peek(key K) (V, bool)
 
 	PeekWithLifetime(key K) (V, time.Time, bool)
+
+	UpdateLifetime(key K, value V, lifetime time.Duration) bool
 
 	// Contains checks for the existence of a key, without changing its recent-ness.
 	// If the found entry is already expired, the evict function is called.
