@@ -24,7 +24,7 @@ import (
 
 	"github.com/cespare/xxhash/v2"
 	hackymaphash "github.com/dolthub/maphash"
-	"github.com/elastic/go-freelru"
+	"github.com/sagernet/go-freelru"
 	"github.com/zeebo/xxh3"
 )
 

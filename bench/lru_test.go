@@ -29,8 +29,7 @@ import (
 	"github.com/coocood/freecache"
 	"github.com/dgraph-io/ristretto/v2"
 	"github.com/hashicorp/golang-lru/v2/simplelru"
-
-	"github.com/elastic/go-freelru"
+	"github.com/sagernet/go-freelru"
 )
 
 const CAP = 8192

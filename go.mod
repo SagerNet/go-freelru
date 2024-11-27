@@ -1,3 +1,3 @@
-module github.com/elastic/go-freelru
+module github.com/sagernet/go-freelru
 
 go 1.18
