@@ -504,6 +504,31 @@ func (lru *LRU[K, V]) getAndRefresh(hash uint32, key K) (value V, ok bool) {
 	return
 }
 
+func (lru *LRU[K, V]) GetAndRefreshOrAdd(key K, constructor func() (V, bool)) (V, bool) {
+	return lru.getAndRefreshOrAdd(lru.hash(key), key, constructor)
+}
+
+func (lru *LRU[K, V]) getAndRefreshOrAdd(hash uint32, key K, constructor func() (V, bool)) (value V, ok bool) {
+	if pos, ok := lru.findKeyNoExpire(hash, key); ok {
+		if pos != lru.head {
+			lru.unlinkElement(pos)
+			lru.setHead(pos)
+		}
+		lru.metrics.Hits++
+		lru.elements[pos].expire = expire(lru.lifetime)
+		return lru.elements[pos].value, ok
+	}
+
+	lru.metrics.Misses++
+	value, ok = constructor()
+	if !ok {
+		return
+	}
+	lru.addWithLifetime(hash, key, value, lru.lifetime)
+	lru.PurgeExpired()
+	return value, false
+}
+
 // Peek looks up a key's value from the cache, without changing its recent-ness.
 // If the found entry is already expired, the evict function is called.
 func (lru *LRU[K, V]) Peek(key K) (value V, ok bool) {

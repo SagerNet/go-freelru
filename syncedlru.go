@@ -111,6 +111,16 @@ func (lru *SyncedLRU[K, V]) GetAndRefresh(key K) (value V, ok bool) {
 	return
 }
 
+func (lru *SyncedLRU[K, V]) GetAndRefreshOrAdd(key K, constructor func() (V, bool)) (value V, updated bool) {
+	hash := lru.lru.hash(key)
+
+	lru.mu.Lock()
+	value, updated = lru.lru.getAndRefreshOrAdd(hash, key, constructor)
+	lru.mu.Unlock()
+
+	return
+}
+
 // Peek looks up a key's value from the cache, without changing its recent-ness.
 // If the found entry is already expired, the evict function is called.
 func (lru *SyncedLRU[K, V]) Peek(key K) (value V, ok bool) {

@@ -49,7 +49,8 @@ func hashUint64(i uint64) uint32 {
 }
 
 func setupCache(t *testing.T, cache Cache[uint64, uint64],
-	evictCounter *uint64) Cache[uint64, uint64] {
+	evictCounter *uint64,
+) Cache[uint64, uint64] {
 	onEvict := func(k uint64, v uint64) {
 		FatalIf(t, k+1 != v, "Evict value not matching (%v+1 != %v)", k, v)
 		if evictCounter != nil {

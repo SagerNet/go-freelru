@@ -190,6 +190,17 @@ func (lru *ShardedLRU[K, V]) GetAndRefresh(key K) (value V, ok bool) {
 	return
 }
 
+func (lru *ShardedLRU[K, V]) GetAndRefreshOrAdd(key K, constructor func() (V, bool)) (value V, updated bool) {
+	hash := lru.hash(key)
+	shard := (hash >> 16) & lru.mask
+
+	lru.mus[shard].Lock()
+	value, updated = lru.lrus[shard].getAndRefreshOrAdd(hash, key, constructor)
+	lru.mus[shard].Unlock()
+
+	return
+}
+
 // Peek looks up a key's value from the cache, without changing its recent-ness.
 // If the found entry is already expired, the evict function is called.
 func (lru *ShardedLRU[K, V]) Peek(key K) (value V, ok bool) {
