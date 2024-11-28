@@ -47,6 +47,8 @@ type Cache[K comparable, V comparable] interface {
 	// and the return value indicates that the key was not found.
 	Get(key K) (V, bool)
 
+	GetWithLifetime(key K) (V, time.Time, bool)
+
 	// GetAndRefresh returns the value associated with the key, setting it as the most
 	// recently used item.
 	// The lifetime of the found cache item is refreshed, even if it was already expired.

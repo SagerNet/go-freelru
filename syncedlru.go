@@ -98,6 +98,16 @@ func (lru *SyncedLRU[K, V]) Get(key K) (value V, ok bool) {
 	return
 }
 
+func (lru *SyncedLRU[K, V]) GetWithLifetime(key K) (value V, lifetime time.Time, ok bool) {
+	hash := lru.lru.hash(key)
+
+	lru.mu.Lock()
+	value, lifetime, ok = lru.lru.getWithLifetime(hash, key)
+	lru.mu.Unlock()
+
+	return
+}
+
 // GetAndRefresh returns the value associated with the key, setting it as the most
 // recently used item.
 // The lifetime of the found cache item is refreshed, even if it was already expired.
